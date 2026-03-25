@@ -1,35 +1,53 @@
 import fs from 'fs';
 
-const FILE = './generated-scenarios.json';
+// 🧠 archivo dinámico (si hay endpoint)
+function getFile(endpoint) {
+  return endpoint
+    ? `./generated-scenarios-${endpoint}.json`
+    : './generated-scenarios.json'; // fallback (compatibilidad)
+}
 
-export function saveGeneratedScenarios(scenarios) {
+export function saveGeneratedScenarios(scenarios, endpoint = null) {
 
-  if (!scenarios || scenarios.length === 0) {
+  if (!scenarios || escenarios.length === 0) {
     console.log("⚠️ No hay escenarios para guardar");
     return;
   }
 
+  const file = getFile(endpoint);
+
   let existing = [];
 
-  if (fs.existsSync(FILE)) {
+  if (fs.existsSync(file)) {
     try {
-      const content = fs.readFileSync(FILE, 'utf-8');
+      const content = fs.readFileSync(file, 'utf-8');
+
       if (content.trim()) {
         existing = JSON.parse(content);
       }
+
     } catch {
       console.log("⚠️ Archivo corrupto, reiniciando...");
     }
   }
 
-  // 🔥 evitar duplicados
-  const nuevos = scenarios.filter(s =>
-    !existing.some(e => e.nombre === s.nombre)
+  // 🔥 evitar duplicados (nombre + endpoint)
+  const nuevos = escenarios.filter(s =>
+    !existing.some(e =>
+      e.nombre === s.nombre &&
+      (e.endpoint || endpoint) === (s.endpoint || endpoint)
+    )
   );
 
-  const updated = [...existing, ...nuevos];
+  // 🧠 agregar endpoint automáticamente si no viene
+  const escenariosConEndpoint = nuevos.map(s => ({
+    ...s,
+    endpoint: s.endpoint || endpoint || 'default'
+  }));
 
-  fs.writeFileSync(FILE, JSON.stringify(updated, null, 2));
+  const updated = [...existing, ...escenariosConEndpoint];
 
-  console.log(`💾 Escenarios guardados: ${nuevos.length}`);
+  fs.writeFileSync(file, JSON.stringify(updated, null, 2));
+
+  console.log(`💾 Escenarios guardados (${endpoint || 'default'}): ${escenariosConEndpoint.length}`);
 }

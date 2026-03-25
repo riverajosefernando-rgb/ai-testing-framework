@@ -1,19 +1,20 @@
-export function generarEscenariosDesdeCambios(changes) {
+export function generarEscenariosDesdeCambios(changes, endpoint = 'default') {
 
   return changes.map((change, index) => {
 
-    // 🧠 Extraer campo (lo que viene después de ": ")
+    // 🧠 Extraer campo
     const field = change.split(': ')[1]?.trim();
 
     // 🔴 Campo eliminado
     if (change.includes("eliminado")) {
       return {
         id: `SCN-${index + 1}`,
-        nombre: `Validar campo eliminado: ${field}`, // 💣 único
+        nombre: `Validar campo eliminado: ${field}`,
         descripcion: change,
         tipo: "breaking-change",
         action: "removed",
         field,
+        endpoint, // 💣 CLAVE
         risk: "HIGH",
         request: {}
       };
@@ -23,11 +24,12 @@ export function generarEscenariosDesdeCambios(changes) {
     if (change.includes("nuevo")) {
       return {
         id: `SCN-${index + 1}`,
-        nombre: `Validar campo nuevo: ${field}`, // 💣 único
+        nombre: `Validar campo nuevo: ${field}`,
         descripcion: change,
         tipo: "compatibility",
         action: "added",
         field,
+        endpoint, // 💣 CLAVE
         risk: "MEDIUM",
         request: {}
       };
@@ -41,6 +43,7 @@ export function generarEscenariosDesdeCambios(changes) {
       tipo: "regression",
       action: "modified",
       field,
+      endpoint, // 💣 CLAVE
       risk: "LOW",
       request: {}
     };

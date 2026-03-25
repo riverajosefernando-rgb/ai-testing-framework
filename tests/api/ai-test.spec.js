@@ -100,14 +100,14 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
   // 🤖 6. Generar + guardar escenarios IA
   if (changes?.changes?.length) {
 
-    const nuevosEscenarios = generarEscenariosDesdeCambios(changes.changes);
+    const escenarios = generarEscenariosDesdeCambios(changes.changes, 'transfer');
 
     console.log("\n🤖 Nuevos escenarios generados:");
     nuevosEscenarios.forEach(e => {
       console.log(`- ${e.nombre}: ${e.descripcion}`);
     });
 
-    saveGeneratedScenarios(nuevosEscenarios);
+    saveGeneratedScenarios(nuevosEscenarios, 'transfer');
 
     console.log("🧠 Escenarios a guardar:", nuevosEscenarios);
   }

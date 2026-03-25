@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/login"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "status": "success",
+      "token": "abc123"
+    }
+  }
+}
