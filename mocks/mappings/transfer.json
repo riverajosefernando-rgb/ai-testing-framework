@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/transfer"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "status": "success",
+      "transactionId": "abc123"
+    }
+  }
+}

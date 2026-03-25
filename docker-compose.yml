@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  wiremock:
+    image: wiremock/wiremock:2.35.0
+    container_name: wiremock
+    ports:
+      - "3000:8080"
+    volumes:
+      - ./mocks:/home/wiremock
+    command: ["--verbose"]

@@ -1,0 +1,7 @@
+node_modules/
+playwright-report/
+test-results/
+.env
+generated-scenarios.json
+history/*.json
+baselines/*.json
