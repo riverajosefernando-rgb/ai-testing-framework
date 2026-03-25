@@ -1,0 +1,24 @@
+[
+  {
+    "id": "SCN-1",
+    "nombre": "Validar campo eliminado: token",
+    "descripcion": "❌ Campo eliminado: token",
+    "tipo": "breaking-change",
+    "action": "removed",
+    "field": "token",
+    "endpoint": "transfer",
+    "risk": "HIGH",
+    "request": {}
+  },
+  {
+    "id": "SCN-2",
+    "nombre": "Validar campo nuevo: sessionId",
+    "descripcion": "➕ Campo nuevo: sessionId",
+    "tipo": "compatibility",
+    "action": "added",
+    "field": "sessionId",
+    "endpoint": "transfer",
+    "risk": "MEDIUM",
+    "request": {}
+  }
+]

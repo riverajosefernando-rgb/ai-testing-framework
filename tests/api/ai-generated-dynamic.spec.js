@@ -23,6 +23,12 @@ for (const endpoint of ENDPOINTS) {
 
   for (const escenario of escenarios) {
 
+    // 💣 FIX CLAVE
+    if (escenario.endpoint && escenario.endpoint !== endpoint) {
+      console.warn(`⚠️ Escenario ignorado: ${escenario.nombre}`);
+      continue;
+    }
+
     totalTests++;
 
     test(`🤖 [${endpoint}] ${escenario.nombre}`, async ({ request }) => {
@@ -47,9 +53,8 @@ for (const endpoint of ENDPOINTS) {
   }
 }
 
-// 🔥 fallback si no hay escenarios
+// 🔥 fallback
 if (totalTests === 0) {
-
   test('⚠️ No hay escenarios IA', async () => {
     console.log("⚠️ No hay escenarios generados");
     expect(true).toBe(true);

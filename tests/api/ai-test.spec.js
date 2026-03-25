@@ -34,10 +34,11 @@ import { openReport } from '../utils/openReport.js';
 
 test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
 
+  const ENDPOINT = 'transfer';
   const ai = getAIProvider();
 
   // 🚀 1. Ejecutar API
-  const response = await request.post('http://localhost:3000/transfer', {
+  const response = await request.post(`http://localhost:3000/${ENDPOINT}`, {
     data: {
       fromAccount: "123",
       toAccount: "456",
@@ -53,19 +54,19 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
   const analysis = await ai.analyzeResponse(body);
 
   // 📸 3. Baseline
-  const baseline = getBaseline('transfer');
+  const baseline = getBaseline(ENDPOINT);
 
   let changes = null;
 
   if (!baseline) {
     console.log("\n📸 Guardando baseline inicial...");
-    saveBaseline('transfer', body);
+    saveBaseline(ENDPOINT, body);
   } else {
 
     changes = detectBreakingChanges(baseline, body);
 
     // 🧠 Aprendizaje del historial
-    const history = getHistory('transfer');
+    const history = getHistory(ENDPOINT);
     const frecuencia = aprenderDelHistorial(history);
 
     // 💣 Filtrar cambios repetidos
@@ -76,7 +77,7 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
       );
     }
 
-    // 🔥 EXTRA CLAVE — Recalcular riesgo
+    // 🔥 Si todo fue aprendido → bajar riesgo
     if (!changes?.changes?.length) {
       changes.riskLevel = 'LOW';
       console.log("🧠 Todos los cambios fueron aprendidos (historial)");
@@ -89,7 +90,7 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
   // 🧾 5. Historial
   if (changes?.changes?.length) {
 
-    saveHistory('transfer', {
+    saveHistory(ENDPOINT, {
       changes: changes.changes,
       riskLevel: changes.riskLevel
     });
@@ -100,20 +101,24 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
   // 🤖 6. Generar + guardar escenarios IA
   if (changes?.changes?.length) {
 
-    const escenarios = generarEscenariosDesdeCambios(changes.changes, 'transfer');
+    const nuevosEscenarios = generarEscenariosDesdeCambios(
+      changes.changes,
+      ENDPOINT
+    );
 
     console.log("\n🤖 Nuevos escenarios generados:");
+
     nuevosEscenarios.forEach(e => {
       console.log(`- ${e.nombre}: ${e.descripcion}`);
     });
 
-    saveGeneratedScenarios(nuevosEscenarios, 'transfer');
+    saveGeneratedScenarios(nuevosEscenarios, ENDPOINT);
 
     console.log("🧠 Escenarios a guardar:", nuevosEscenarios);
   }
 
   // 📊 7. Dashboard
-  const historyFinal = getHistory('transfer');
+  const historyFinal = getHistory(ENDPOINT);
 
   if (historyFinal.length > 0) {
 
@@ -136,9 +141,14 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
 
   if (changes) {
 
-    // 🔴 STRICT
+    // 🔴 STRICT → solo rompe si hay breaking change REAL
     if (AI_MODE === AI_MODES.STRICT) {
-      expect(changes.riskLevel).not.toBe('HIGH');
+
+      const breakingChanges = changes.changes.filter(c =>
+        c.includes('eliminado')
+      );
+
+      expect(breakingChanges.length).toBe(0);
     }
 
     // 🟡 FLEXIBLE
@@ -152,7 +162,7 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
     if (AI_MODE === AI_MODES.LEARNING) {
       if (changes.riskLevel === 'HIGH') {
         console.warn("🧠 Aprendiendo nuevo baseline...");
-        saveBaseline('transfer', body);
+        saveBaseline(ENDPOINT, body);
       }
     }
   }

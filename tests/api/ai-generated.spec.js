@@ -11,7 +11,7 @@ import { generarAssertsDeTipo } from '../ai/analyzers/typeValidator.js';
 // 📸 Baseline
 import { getBaseline } from '../ai/baseline/baselineManager.js';
 
-// 📁 endpoints soportados (🔥 puedes agregar más)
+// 📁 endpoints soportados
 const ENDPOINTS = ['transfer', 'login'];
 
 test('🤖 Ejecutar escenarios generados por IA', async ({ request }) => {
@@ -38,18 +38,25 @@ test('🤖 Ejecutar escenarios generados por IA', async ({ request }) => {
 
     console.log(`\n🧠 Ejecutando ${escenarios.length} escenarios IA para ${endpoint}`);
 
-    totalEscenarios += escenarios.length;
-
     // 📸 baseline por endpoint
     const baseline = getBaseline(endpoint);
 
     for (const escenario of escenarios) {
 
+      // 💣 VALIDACIÓN CRÍTICA (ANTI-CONTAMINACIÓN)
+      if (escenario.endpoint && escenario.endpoint !== endpoint) {
+        console.warn(`⚠️ Escenario ignorado (endpoint incorrecto): ${escenario.nombre}`);
+        continue;
+      }
+
+      totalEscenarios++;
+
       console.log(`\n🚀 Ejecutando: ${escenario.nombre} (${endpoint})`);
 
       try {
 
-        const apiEndpoint = escenario.endpoint || endpoint;
+        // 💣 FORZAR endpoint correcto
+        const apiEndpoint = endpoint;
 
         const response = await request.post(
           `http://localhost:3000/${apiEndpoint}`,
@@ -60,9 +67,9 @@ test('🤖 Ejecutar escenarios generados por IA', async ({ request }) => {
 
         const body = await response.json();
 
-        console.log("📦 Response:", body);
+        console.log(`📦 ${apiEndpoint} Response:`, body);
 
-        // 🧠 1. Asserts IA
+        // 🧠 1. Asserts IA (cambios)
         const assertsIA = generarAssertsIA(escenario);
         console.log("🧠 Asserts IA:", assertsIA);
 

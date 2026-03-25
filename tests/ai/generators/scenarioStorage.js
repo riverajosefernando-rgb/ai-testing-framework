@@ -9,7 +9,7 @@ function getFile(endpoint) {
 
 export function saveGeneratedScenarios(scenarios, endpoint = null) {
 
-  if (!scenarios || escenarios.length === 0) {
+  if (!scenarios || scenarios.length === 0) {
     console.log("⚠️ No hay escenarios para guardar");
     return;
   }
@@ -32,7 +32,7 @@ export function saveGeneratedScenarios(scenarios, endpoint = null) {
   }
 
   // 🔥 evitar duplicados (nombre + endpoint)
-  const nuevos = escenarios.filter(s =>
+  const nuevos = scenarios.filter(s =>
     !existing.some(e =>
       e.nombre === s.nombre &&
       (e.endpoint || endpoint) === (s.endpoint || endpoint)
