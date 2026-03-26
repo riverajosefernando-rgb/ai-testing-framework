@@ -6,6 +6,8 @@ import { getAIProvider } from '../ai/aiFactory.js';
 // ⚙️ Config
 import { AI_MODE, AI_MODES } from '../config/aiConfig.js';
 
+import { BASE_URL } from '../config/environment.js';
+
 // 📸 Baseline
 import { saveBaseline, getBaseline } from '../ai/baseline/baselineManager.js';
 
@@ -38,7 +40,7 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
   const ai = getAIProvider();
 
   // 🚀 1. Ejecutar API
-  const response = await request.post(`http://localhost:3000/${ENDPOINT}`, {
+  const response = await request.post(`${BASE_URL}/${ENDPOINT}`, {
     data: {
       fromAccount: "123",
       toAccount: "456",

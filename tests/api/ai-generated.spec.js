@@ -11,65 +11,101 @@ import { generarAssertsDeTipo } from '../ai/analyzers/typeValidator.js';
 // 📸 Baseline
 import { getBaseline } from '../ai/baseline/baselineManager.js';
 
-// 📁 endpoints soportados
-const ENDPOINTS = ['transfer', 'login'];
+// 🌐 ENV
+import { BASE_URL } from '../config/environment.js';
 
-test('🤖 Ejecutar escenarios generados por IA', async ({ request }) => {
+// 🧠 Detector dinámico
+import { getEndpoints } from '../ai/utils/endpointDetector.js';
+
+test('🤖 Ejecutar escenarios generados por IA (AUTO)', async ({ request }) => {
+
+  const ENDPOINTS = getEndpoints();
 
   let totalEscenarios = 0;
 
-  for (const endpoint of ENDPOINTS) {
+  for (const endpointConfig of ENDPOINTS) {
 
-    const FILE = `./generated-scenarios-${endpoint}.json`;
+    const endpointName = endpointConfig.name;
+    const endpointPath = endpointConfig.path;
+    const method = endpointConfig.method.toLowerCase();
+
+    const FILE = `./generated-scenarios-${endpointName}.json`;
 
     if (!fs.existsSync(FILE)) {
-      console.log(`⚠️ No hay escenarios para ${endpoint}`);
+      console.log(`⚠️ No hay escenarios para ${endpointName}`);
       continue;
     }
 
     const content = fs.readFileSync(FILE, 'utf-8');
 
     if (!content.trim()) {
-      console.log(`⚠️ Archivo vacío para ${endpoint}`);
+      console.log(`⚠️ Archivo vacío para ${endpointName}`);
       continue;
     }
 
-    const escenarios = JSON.parse(content);
+    let escenarios = [];
 
-    console.log(`\n🧠 Ejecutando ${escenarios.length} escenarios IA para ${endpoint}`);
+    try {
+      escenarios = JSON.parse(content);
+    } catch (error) {
+      console.error(`❌ JSON corrupto en ${FILE}`);
+      continue;
+    }
+
+    console.log(`\n🧠 Ejecutando ${escenarios.length} escenarios IA para ${endpointName}`);
 
     // 📸 baseline por endpoint
-    const baseline = getBaseline(endpoint);
+    const baseline = getBaseline(endpointName);
 
     for (const escenario of escenarios) {
 
-      // 💣 VALIDACIÓN CRÍTICA (ANTI-CONTAMINACIÓN)
-      if (escenario.endpoint && escenario.endpoint !== endpoint) {
-        console.warn(`⚠️ Escenario ignorado (endpoint incorrecto): ${escenario.nombre}`);
+      // 💣 ANTI-CONTAMINACIÓN
+      if (escenario.endpoint && escenario.endpoint !== endpointName) {
+        console.warn(`⚠️ Escenario ignorado: ${escenario.nombre}`);
         continue;
       }
 
       totalEscenarios++;
 
-      console.log(`\n🚀 Ejecutando: ${escenario.nombre} (${endpoint})`);
+      console.log(`\n🚀 Ejecutando: ${escenario.nombre} (${endpointName})`);
 
       try {
 
-        // 💣 FORZAR endpoint correcto
-        const apiEndpoint = endpoint;
+        let response;
 
-        const response = await request.post(
-          `http://localhost:3000/${apiEndpoint}`,
-          {
-            data: escenario.request || {}
-          }
-        );
+        // 🔥 MÉTODO DINÁMICO
+        if (method === 'get') {
+          response = await request.get(`${BASE_URL}${endpointPath}`);
+        } else {
+          response = await request[method](
+            `${BASE_URL}${endpointPath}`,
+            {
+              data: escenario.request || {}
+            }
+          );
+        }
 
-        const body = await response.json();
+        // 💣 VALIDAR STATUS
+        if (response.status() >= 500) {
+          const errorText = await response.text();
+          throw new Error(`❌ API Error ${response.status()} → ${errorText}`);
+        }
 
-        console.log(`📦 ${apiEndpoint} Response:`, body);
+        // 💣 VALIDAR JSON
+        const contentType = response.headers()['content-type'] || '';
 
-        // 🧠 1. Asserts IA (cambios)
+        let body;
+
+        if (contentType.includes('application/json')) {
+          body = await response.json();
+        } else {
+          const text = await response.text();
+          throw new Error(`❌ Respuesta no es JSON → ${text}`);
+        }
+
+        console.log(`📦 ${endpointName} Response:`, body);
+
+        // 🧠 1. Asserts IA
         const assertsIA = generarAssertsIA(escenario);
         console.log("🧠 Asserts IA:", assertsIA);
 
@@ -86,7 +122,7 @@ test('🤖 Ejecutar escenarios generados por IA', async ({ request }) => {
 
       } catch (error) {
 
-        console.error(`❌ Error en escenario: ${escenario.nombre} (${endpoint})`);
+        console.error(`❌ Error en escenario: ${escenario.nombre} (${endpointName})`);
         console.error(error);
 
         throw error;
@@ -94,7 +130,9 @@ test('🤖 Ejecutar escenarios generados por IA', async ({ request }) => {
     }
   }
 
+  // 🔥 fallback inteligente
   if (totalEscenarios === 0) {
     console.log("⚠️ No hay escenarios IA en ningún endpoint");
   }
+
 });

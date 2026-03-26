@@ -3,6 +3,9 @@ import { test, expect } from '@playwright/test';
 // 🧠 AI
 import { getAIProvider } from '../ai/aiFactory.js';
 
+import { BASE_URL } from '../config/environment.js';
+
+
 // 📸 Baseline
 import { saveBaseline, getBaseline } from '../ai/baseline/baselineManager.js';
 
@@ -28,7 +31,7 @@ test('🧠 AI Testing - LOGIN API', async ({ request }) => {
   const ai = getAIProvider();
 
   // 🚀 1. Llamar API
-  const response = await request.post('http://localhost:3000/login', {
+  const response = await request.post(`${BASE_URL}/login`, {
     data: {
       user: "test",
       password: "1234"
