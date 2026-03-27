@@ -1,6 +1,8 @@
-const ENV = process.env.ENV || 'mock';
+const ENV = (process.env.ENV || 'mock').toLowerCase();
 
-const CONFIG = {
+export const IS_MOCK = ENV === 'mock';
+
+export const CONFIG = {
   mock: 'http://localhost:3000',
   dev: 'https://dev.api.bank.com',
   qa: 'https://qa.api.bank.com',
