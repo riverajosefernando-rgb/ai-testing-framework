@@ -101,22 +101,55 @@ El sistema decide automáticamente:
 ## 🏗️ Arquitectura
 
 ```
-tests/
-├── api/
-│   ├── ai-test.spec.js
-│   ├── ai-login.spec.js
-│   ├── ai-generated.spec.js
-│   ├── ai-dynamic.spec.js
+ai-testing-project/
 │
-├── ai/
-│   ├── analyzers/
-│   ├── baseline/
-│   ├── history/
-│   ├── generators/
-│   ├── reporters/
+├── config/                          # ⚙️ Configuración global
+│   ├── aiConfig.js
+│   └── environment.js
 │
-history/
-ai-report.html
+├── tests/
+│   │
+│   ├── api/                         # 🧪 Tests principales
+│   │   ├── ai-test.spec.js          # Motor IA (transfer)
+│   │   ├── ai-login.spec.js         # Test login
+│   │   ├── ai-generated.spec.js     # Ejecuta escenarios generados
+│   │   ├── ai-generated-dynamic.spec.js
+│   │   └── ai-dynamic.spec.js       # Multi-endpoint automático
+│   │
+│   ├── ai/                          # 🧠 CORE IA
+│   │   ├── analyzers/
+│   │   ├── baseline/
+│   │   ├── generators/
+│   │   ├── history/
+│   │   ├── prompts/
+│   │   ├── providers/
+│   │   ├── reporters/
+│   │   ├── utils/
+│   │   ├── aiFactory.js
+│   │   └── aiProvider.js
+│   │
+│   ├── mocks/                       # 🎭 WireMock
+│   │   ├── mappings/
+│   │   │   ├── login.json
+│   │   │   └── transfer.json
+│   │   └── __files/
+│   │
+│   └── setup/                       # 🚀 Lifecycle Playwright
+│       ├── globalSetup.js
+│       └── globalTeardown.js
+│
+├── infra/
+│   └── wiremock.js                  # 🐳 Control Docker
+│
+├── utils/
+│   ├── openReport.js
+│   └── aiValidator.js
+│
+├── docker-compose.yml               # WireMock
+├── playwright.config.js
+├── package.json
+├── .env
+├── README.md
 ```
 
 ---

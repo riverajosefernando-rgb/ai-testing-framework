@@ -8,7 +8,9 @@
     "jsonBody": {
       "status": "success",
       "transactionId": "abc123",
-      "amount": 100
+      "amount": 100,
+      "currency": "USD",
+      "newField": "test"   
     },
     "headers": {
       "Content-Type": "application/json"
