@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // 🧠 AI
 import { getAIProvider } from '../ai/aiFactory.js';
 
-import { BASE_URL } from '../config/environment.js';
+import { BASE_URL } from '../../config/environment.js';
 
 // 📸 Baseline
 import { saveBaseline, getBaseline } from '../ai/baseline/baselineManager.js';

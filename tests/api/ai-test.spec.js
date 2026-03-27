@@ -4,9 +4,9 @@ import { test, expect } from '@playwright/test';
 import { getAIProvider } from '../ai/aiFactory.js';
 
 // ⚙️ Config
-import { AI_MODE, AI_MODES } from '../config/aiConfig.js';
+import { AI_MODE, AI_MODES } from '../../config/aiConfig.js';
 
-import { BASE_URL } from '../config/environment.js';
+import { BASE_URL } from '../../config/environment.js';
 
 // 📸 Baseline
 import { saveBaseline, getBaseline } from '../ai/baseline/baselineManager.js';

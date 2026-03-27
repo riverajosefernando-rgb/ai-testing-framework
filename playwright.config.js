@@ -1,12 +1,12 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  workers: 1, // Ejecutar tests de forma secuencial para evitar conflictos con archivos de historial
- 
+  workers: 1,
+
   testDir: './tests',
 
-  globalSetup: './setup/globalSetup.js',
-  globalTeardown: './setup/globalTeardown.js',
+  globalSetup: './tests/setup/globalSetup.js',
+  globalTeardown: './tests/setup/globalTeardown.js',
 
   use: {
     baseURL: 'http://localhost:3000',
@@ -17,5 +17,4 @@ export default defineConfig({
     ['list'],
     ['html', { open: 'never' }]
   ],
-
 });

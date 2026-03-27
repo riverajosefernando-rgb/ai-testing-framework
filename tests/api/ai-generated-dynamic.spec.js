@@ -4,7 +4,7 @@ import fs from 'fs';
 import { generarAssertsIA } from '../ai/analyzers/assertGenerator.js';
 import { ejecutarAsserts } from '../ai/analyzers/assertExecutor.js';
 
-import { BASE_URL } from '../config/environment.js';
+import { BASE_URL } from '../../config/environment.js';
 
 // 🧠 Detector dinámico
 import { getEndpoints } from '../ai/utils/endpointDetector.js';

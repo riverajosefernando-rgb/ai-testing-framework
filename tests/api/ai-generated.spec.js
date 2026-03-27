@@ -12,7 +12,7 @@ import { generarAssertsDeTipo } from '../ai/analyzers/typeValidator.js';
 import { getBaseline } from '../ai/baseline/baselineManager.js';
 
 // 🌐 ENV
-import { BASE_URL } from '../config/environment.js';
+import { BASE_URL } from '../../config/environment.js';
 
 // 🧠 Detector dinámico
 import { getEndpoints } from '../ai/utils/endpointDetector.js';

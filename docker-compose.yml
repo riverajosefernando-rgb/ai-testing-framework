@@ -5,7 +5,7 @@ services:
     ports:
       - "3000:8080"
     volumes:
-      - ./mocks:/home/wiremock
+      - ./tests/mocks:/home/wiremock
     command: ["--verbose"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/__admin"]
