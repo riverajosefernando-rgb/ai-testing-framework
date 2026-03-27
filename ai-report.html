@@ -3,6 +3,12 @@
   <html>
   <head>
     <title>AI Testing Dashboard</title>
+
+    <!-- 🚫 Evitar cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
     <style>
       body {
         font-family: Arial;
@@ -13,6 +19,12 @@
 
       h1 {
         color: #38bdf8;
+      }
+
+      .timestamp {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-bottom: 10px;
       }
 
       table {
@@ -43,11 +55,21 @@
         margin: 0;
         padding-left: 20px;
       }
+
+      li {
+        margin-bottom: 5px;
+      }
+
+      .endpoint {
+        color: #38bdf8;
+        font-weight: bold;
+      }
     </style>
   </head>
 
   <body>
     <h1>🧠 AI Testing Dashboard</h1>
+    <p class="timestamp">Última actualización: 26/03/26, 6:20:20 p. m.</p>
     <p>Historial de cambios detectados por IA</p>
 
     <table>
@@ -61,31 +83,37 @@
       <tbody>
         
     <tr>
-      <td>2026-03-25T23:18:12.276Z</td>
+      <td>2026-03-26T23:16:35.413Z</td>
       <td class="MEDIUM">MEDIUM</td>
       <td>
         <ul>
-          <li>➕ Campo nuevo: currency</li><li>➕ Campo nuevo: newField</li>
+          
+            <li>
+              <span class="endpoint">[transfer]</span> → ➕ Campo nuevo: currency
+            </li>
+          
+            <li>
+              <span class="endpoint">[transfer]</span> → ➕ Campo nuevo: newField
+            </li>
+          
         </ul>
       </td>
     </tr>
   
     <tr>
-      <td>2026-03-25T23:23:26.987Z</td>
+      <td>26/03/26, 6:20:20 p. m.</td>
       <td class="MEDIUM">MEDIUM</td>
       <td>
         <ul>
-          <li>➕ Campo nuevo: currency</li><li>➕ Campo nuevo: newField</li>
-        </ul>
-      </td>
-    </tr>
-  
-    <tr>
-      <td>2026-03-25T23:40:46.352Z</td>
-      <td class="MEDIUM">MEDIUM</td>
-      <td>
-        <ul>
-          <li>➕ Campo nuevo: currency</li><li>➕ Campo nuevo: newField</li>
+          
+            <li>
+              <span class="endpoint">[transfer]</span> → ➕ Campo nuevo: currency
+            </li>
+          
+            <li>
+              <span class="endpoint">[transfer]</span> → ➕ Campo nuevo: newField
+            </li>
+          
         </ul>
       </td>
     </tr>

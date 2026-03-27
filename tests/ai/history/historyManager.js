@@ -20,7 +20,6 @@ export function saveHistory(name, entry) {
     try {
       const content = fs.readFileSync(file, 'utf-8');
 
-      // 🧠 Evita archivo vacío
       if (content.trim()) {
         history = JSON.parse(content);
       }
@@ -31,9 +30,31 @@ export function saveHistory(name, entry) {
     }
   }
 
+  // 🔥 AQUÍ ESTÁ LA MAGIA
+  const formattedChanges = (entry.changes || []).map(c => {
+    // soporta formato viejo (string)
+    if (typeof c === 'string') {
+      return {
+        endpoint: name,
+        description: c
+      };
+    }
+
+    // formato nuevo
+    return {
+      endpoint: c.endpoint || name,
+      description: c.description || JSON.stringify(c)
+    };
+  });
+
   history.push({
-    timestamp: new Date().toISOString(),
-    ...entry
+    timestamp: new Intl.DateTimeFormat('es-CO', {
+    dateStyle: 'short',
+    timeStyle: 'medium'
+}).format(new Date()),
+    endpoint: name, // 🔥 guardamos endpoint explícito
+    ...entry,
+    changes: formattedChanges
   });
 
   fs.writeFileSync(file, JSON.stringify(history, null, 2));

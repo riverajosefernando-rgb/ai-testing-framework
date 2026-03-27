@@ -1,17 +1,27 @@
 import { exec } from 'child_process';
+import path from 'path';
 
 export function openReport(file = 'ai-report.html') {
+  const fullPath = path.resolve(file);
 
-  const command =
-    process.platform === 'win32'
-      ? `start ${file}`
-      : process.platform === 'darwin'
-      ? `open ${file}`
-      : `xdg-open ${file}`;
+  let command;
 
-  exec(command, (err) => {
+  if (process.platform === 'win32') {
+    command = `start "" "${fullPath}"`;
+  } else if (process.platform === 'darwin') {
+    command = `open "${fullPath}"`;
+  } else {
+    command = `xdg-open "${fullPath}"`;
+  }
+
+  exec(command, {
+    shell: true,
+    detached: true
+  }, (err) => {
     if (err) {
       console.error("❌ Error abriendo el dashboard:", err);
+    } else {
+      console.log("📊 Dashboard abierto correctamente");
     }
   });
 }

@@ -5,7 +5,6 @@ import { getAIProvider } from '../ai/aiFactory.js';
 
 import { BASE_URL } from '../config/environment.js';
 
-
 // 📸 Baseline
 import { saveBaseline, getBaseline } from '../ai/baseline/baselineManager.js';
 
@@ -23,15 +22,16 @@ import { saveGeneratedScenarios } from '../ai/generators/scenarioStorage.js';
 import { saveHistory } from '../ai/history/historyManager.js';
 import { getHistory } from '../ai/history/historyReader.js';
 
-// 📊 Reporte
+// 📊 Reporte consola
 import { printAIReport } from '../ai/reporters/aiReporter.js';
 
 test('🧠 AI Testing - LOGIN API', async ({ request }) => {
 
+  const ENDPOINT = 'login';
   const ai = getAIProvider();
 
   // 🚀 1. Llamar API
-  const response = await request.post(`${BASE_URL}/login`, {
+  const response = await request.post(`${BASE_URL}/${ENDPOINT}`, {
     data: {
       user: "test",
       password: "1234"
@@ -46,19 +46,19 @@ test('🧠 AI Testing - LOGIN API', async ({ request }) => {
   const analysis = await ai.analyzeResponse(body);
 
   // 📸 3. Baseline
-  const baseline = getBaseline('login');
+  const baseline = getBaseline(ENDPOINT);
 
   let changes = null;
 
   if (!baseline) {
     console.log("📸 Guardando baseline LOGIN...");
-    saveBaseline('login', body);
+    saveBaseline(ENDPOINT, body);
   } else {
 
     changes = detectBreakingChanges(baseline, body);
 
     // 🧠 Aprender historial
-    const history = getHistory('login');
+    const history = getHistory(ENDPOINT);
     const frecuencia = aprenderDelHistorial(history);
 
     // 💣 Filtrar ruido
@@ -69,37 +69,46 @@ test('🧠 AI Testing - LOGIN API', async ({ request }) => {
       );
     }
 
-    // 🔥 FIX CRÍTICO
+    // 🔥 Si no hay cambios reales
     if (!changes?.changes?.length) {
       changes.riskLevel = 'LOW';
       console.log("🧠 LOGIN: cambios ya aprendidos");
     }
   }
 
-  // 📊 4. Reporte
-  printAIReport({ analysis, changes });
+  // 📊 4. Reporte (con endpoint 🔥)
+  printAIReport({ endpoint: ENDPOINT, analysis, changes });
 
-  // 🧾 5. Historial
+  // 🧾 5. Historial (FIX 🔥🔥)
   if (changes?.changes?.length) {
-    saveHistory('login', {
-      changes: changes.changes,
+
+    const formattedChanges = changes.changes.map(c => ({
+      endpoint: ENDPOINT,
+      description: c
+    }));
+
+    saveHistory(ENDPOINT, {
+      changes: formattedChanges,
       riskLevel: changes.riskLevel
     });
 
-    console.log("📦 Cambios LOGIN:", changes.changes);
+    console.log("📦 Cambios LOGIN:", formattedChanges);
   }
 
   // 🤖 6. Generar escenarios
   if (changes?.changes?.length) {
 
-    const escenarios = generarEscenariosDesdeCambios(changes.changes, 'transfer');
+    const escenarios = generarEscenariosDesdeCambios(
+      changes.changes,
+      ENDPOINT
+    );
 
     console.log("\n🤖 Escenarios LOGIN:");
     escenarios.forEach(e => {
       console.log(`- ${e.nombre}`);
     });
 
-    saveGeneratedScenarios(escenarios, 'login');
+    saveGeneratedScenarios(escenarios, ENDPOINT);
   }
 
   // 💣 Validación base

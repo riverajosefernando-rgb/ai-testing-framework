@@ -23,6 +23,7 @@ import { printAIReport } from '../ai/reporters/aiReporter.js';
 // 🧾 Historial
 import { saveHistory } from '../ai/history/historyManager.js';
 import { getHistory } from '../ai/history/historyReader.js';
+import { getAllHistory } from '../ai/history/historyAggregator.js';
 
 // 🤖 Generación de escenarios
 import { generarEscenariosDesdeCambios } from '../ai/generators/scenarioEnhancer.js';
@@ -30,9 +31,6 @@ import { saveGeneratedScenarios } from '../ai/generators/scenarioStorage.js';
 
 // 📊 Dashboard HTML
 import { generateHTMLReport } from '../ai/reporters/htmlReporter.js';
-
-// 🚀 Abrir dashboard
-import { openReport } from '../utils/openReport.js';
 
 test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
 
@@ -86,18 +84,23 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
     }
   }
 
-  // 📊 4. Reporte
-  printAIReport({ analysis, changes });
+  // 📊 4. Reporte (con endpoint 🔥)
+  printAIReport({ endpoint: ENDPOINT, analysis, changes });
 
-  // 🧾 5. Historial
+  // 🧾 5. Historial (FIX 🔥🔥)
   if (changes?.changes?.length) {
 
+    const formattedChanges = changes.changes.map(c => ({
+      endpoint: ENDPOINT,
+      description: c
+    }));
+
     saveHistory(ENDPOINT, {
-      changes: changes.changes,
+      changes: formattedChanges,
       riskLevel: changes.riskLevel
     });
 
-    console.log("📦 Cambios detectados:", changes.changes);
+    console.log("📦 Cambios detectados:", formattedChanges);
   }
 
   // 🤖 6. Generar + guardar escenarios IA
@@ -115,23 +118,13 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
     });
 
     saveGeneratedScenarios(nuevosEscenarios, ENDPOINT);
-
-    console.log("🧠 Escenarios a guardar:", nuevosEscenarios);
   }
 
-  // 📊 7. Dashboard
-  const historyFinal = getHistory(ENDPOINT);
+  // 📊 7. Dashboard GLOBAL 🔥
+  const historyFinal = getAllHistory();
 
   if (historyFinal.length > 0) {
-
     generateHTMLReport(historyFinal);
-
-    // 🚀 abrir solo si hay cambios críticos
-    if (changes?.riskLevel === 'HIGH') {
-      setTimeout(() => {
-        openReport();
-      }, 1000);
-    }
   }
 
   // 💣 8. VALIDACIONES INTELIGENTES
@@ -143,7 +136,7 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
 
   if (changes) {
 
-    // 🔴 STRICT → solo rompe si hay breaking change REAL
+    // 🔴 STRICT → rompe solo si hay breaking real
     if (AI_MODE === AI_MODES.STRICT) {
 
       const breakingChanges = changes.changes.filter(c =>
