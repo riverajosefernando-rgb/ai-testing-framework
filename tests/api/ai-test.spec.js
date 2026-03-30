@@ -5,7 +5,6 @@ import { getAIProvider } from '../ai/aiFactory.js';
 
 // ⚙️ Config
 import { AI_MODE, AI_MODES } from '../../config/aiConfig.js';
-
 import { BASE_URL } from '../../config/environment.js';
 
 // 📸 Baseline
@@ -84,10 +83,10 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
     }
   }
 
-  // 📊 4. Reporte (con endpoint 🔥)
+  // 📊 4. Reporte consola
   printAIReport({ endpoint: ENDPOINT, analysis, changes });
 
-  // 🧾 5. Historial (FIX 🔥🔥)
+  // 🧾 5. Historial
   if (changes?.changes?.length) {
 
     const formattedChanges = changes.changes.map(c => ({
@@ -103,7 +102,7 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
     console.log("📦 Cambios detectados:", formattedChanges);
   }
 
-  // 🤖 6. Generar + guardar escenarios IA
+  // 🤖 6. Generar escenarios IA
   if (changes?.changes?.length) {
 
     const nuevosEscenarios = generarEscenariosDesdeCambios(
@@ -120,23 +119,29 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
     saveGeneratedScenarios(nuevosEscenarios, ENDPOINT);
   }
 
-  // 📊 7. Dashboard GLOBAL 🔥
+  // 📊 7. Dashboard GLOBAL 🔥🔥🔥 (FIX CLAVE)
   const historyFinal = getAllHistory();
 
-  if (historyFinal.length > 0) {
-    generateHTMLReport(historyFinal || []);
-  }
+  console.log("📊 Generando dashboard con registros:", historyFinal.length);
 
-  // 💣 8. VALIDACIONES INTELIGENTES
+  generateHTMLReport(
+    historyFinal.length > 0
+      ? historyFinal
+      : [{
+          timestamp: new Date().toISOString(),
+          riskLevel: 'LOW',
+          changes: []
+        }]
+  );
+
+  // 💣 8. VALIDACIONES
 
   console.log(`🧠 AI MODE: ${AI_MODE.toUpperCase()}`);
 
-  // ✅ Validación IA
   expect(['LOW', 'MEDIUM']).toContain(analysis.riskLevel);
 
   if (changes) {
 
-    // 🔴 STRICT → rompe solo si hay breaking real
     if (AI_MODE === AI_MODES.STRICT) {
 
       const breakingChanges = changes.changes.filter(c =>
@@ -146,14 +151,12 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
       expect(breakingChanges.length).toBe(0);
     }
 
-    // 🟡 FLEXIBLE
     if (AI_MODE === AI_MODES.FLEXIBLE) {
       if (changes.riskLevel === 'HIGH') {
-        console.warn("⚠️ Cambios críticos detectados, revisar dashboard IA");
+        console.warn("⚠️ Cambios críticos detectados");
       }
     }
 
-    // 🟢 LEARNING
     if (AI_MODE === AI_MODES.LEARNING) {
       if (changes.riskLevel === 'HIGH') {
         console.warn("🧠 Aprendiendo nuevo baseline...");
