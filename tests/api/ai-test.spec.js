@@ -124,7 +124,7 @@ test('🧠 AI Testing Nivel 4 - Autonomous Engine', async ({ request }) => {
   const historyFinal = getAllHistory();
 
   if (historyFinal.length > 0) {
-    generateHTMLReport(historyFinal);
+    generateHTMLReport(historyFinal || []);
   }
 
   // 💣 8. VALIDACIONES INTELIGENTES

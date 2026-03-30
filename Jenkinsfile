@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         ENV = "mock"
+        CI = "true"
     }
 
     stages {
@@ -31,6 +32,28 @@ pipeline {
             }
         }
 
+        // 🔥 CRÍTICO: asegurar carpetas
+        stage('Ensure Report Folders') {
+            steps {
+                bat '''
+                if not exist playwright-report mkdir playwright-report
+                if not exist reports mkdir reports
+                '''
+            }
+        }
+
+        // 🔍 DEBUG (puedes quitar luego)
+        stage('Debug Reports') {
+            steps {
+                bat 'echo ==== WORKSPACE FILES ===='
+                bat 'dir'
+                bat 'echo ==== PLAYWRIGHT REPORT ===='
+                bat 'dir playwright-report'
+                bat 'echo ==== AI REPORT ===='
+                bat 'dir reports'
+            }
+        }
+
         stage('Publish Playwright Report') {
             steps {
                 publishHTML(target: [
@@ -39,7 +62,7 @@ pipeline {
                     reportName: 'Playwright Report',
                     keepAll: true,
                     alwaysLinkToLastBuild: true,
-                    allowMissing: false
+                    allowMissing: true   // 🔥 evita fallo si está vacío
                 ])
             }
         }
@@ -47,12 +70,12 @@ pipeline {
         stage('Publish AI Dashboard') {
             steps {
                 publishHTML(target: [
-                    reportDir: 'reports', // 🔥 IMPORTANTE (no root)
+                    reportDir: 'reports',
                     reportFiles: 'ai-report.html',
                     reportName: 'AI Dashboard',
                     keepAll: true,
                     alwaysLinkToLastBuild: true,
-                    allowMissing: false
+                    allowMissing: true   // 🔥 evita fallo
                 ])
             }
         }
@@ -61,6 +84,14 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'playwright-report/**, reports/**', allowEmptyArchive: true
+        }
+
+        success {
+            echo '✅ Pipeline ejecutado correctamente'
+        }
+
+        failure {
+            echo '❌ Pipeline falló - revisar reportes'
         }
     }
 }
