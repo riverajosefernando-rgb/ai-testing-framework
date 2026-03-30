@@ -32,28 +32,32 @@ pipeline {
             }
         }
 
-        // 🔥 CRÍTICO: asegurar carpetas
+        // 🔥 Crear carpetas SIEMPRE
         stage('Ensure Report Folders') {
             steps {
                 bat '''
                 if not exist playwright-report mkdir playwright-report
                 if not exist reports mkdir reports
+                if not exist allure-results mkdir allure-results
                 '''
             }
         }
 
-        // 🔍 DEBUG (puedes quitar luego)
+        // 🔍 Debug opcional
         stage('Debug Reports') {
             steps {
-                bat 'echo ==== WORKSPACE FILES ===='
+                bat 'echo ==== WORKSPACE ===='
                 bat 'dir'
-                bat 'echo ==== PLAYWRIGHT REPORT ===='
+                bat 'echo ==== PLAYWRIGHT ===='
                 bat 'dir playwright-report'
                 bat 'echo ==== AI REPORT ===='
                 bat 'dir reports'
+                bat 'echo ==== ALLURE ===='
+                bat 'dir allure-results'
             }
         }
 
+        // 📊 Playwright HTML
         stage('Publish Playwright Report') {
             steps {
                 publishHTML(target: [
@@ -62,12 +66,17 @@ pipeline {
                     reportName: 'Playwright Report',
                     keepAll: true,
                     alwaysLinkToLastBuild: true,
-                    allowMissing: true   // 🔥 evita fallo si está vacío
+                    allowMissing: true
                 ])
             }
         }
 
-        stage('Publish AI Dashboard') {
+        // 📊 AI Dashboard
+        stage('Archive Playwright Report') {
+    steps {
+        archiveArtifacts artifacts: 'playwright-report/**', allowEmptyArchive: true
+    }
+}stage('Publish AI Dashboard') {
             steps {
                 publishHTML(target: [
                     reportDir: 'reports',
@@ -75,7 +84,18 @@ pipeline {
                     reportName: 'AI Dashboard',
                     keepAll: true,
                     alwaysLinkToLastBuild: true,
-                    allowMissing: true   // 🔥 evita fallo
+                    allowMissing: true
+                ])
+            }
+        }
+
+        // 🚀 ALLURE REPORT 🔥🔥🔥
+        stage('Publish Allure Report') {
+            steps {
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    results: [[path: 'allure-results']]
                 ])
             }
         }
@@ -83,7 +103,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'playwright-report/**, reports/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'playwright-report/**, reports/**, allure-results/**', allowEmptyArchive: true
         }
 
         success {
