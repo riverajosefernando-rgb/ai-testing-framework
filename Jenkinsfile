@@ -26,14 +26,8 @@ pipeline {
             }
         }
 
-        stage('Run AI Tests') {
-            steps {
-                bat 'npx playwright test'
-            }
-        }
-
-        // 🔥 Crear carpetas SIEMPRE
-        stage('Ensure Report Folders') {
+        // 🔥 Crear carpetas ANTES de ejecutar
+        stage('Prepare Report Folders') {
             steps {
                 bat '''
                 if not exist playwright-report mkdir playwright-report
@@ -43,7 +37,13 @@ pipeline {
             }
         }
 
-        // 🔍 Debug opcional
+        stage('Run AI Tests') {
+            steps {
+                bat 'npx playwright test'
+            }
+        }
+
+        // 🔍 Debug útil
         stage('Debug Reports') {
             steps {
                 bat 'echo ==== WORKSPACE ===='
@@ -57,26 +57,15 @@ pipeline {
             }
         }
 
-        // 📊 Playwright HTML
-        stage('Publish Playwright Report') {
+        // 🔥 PLAYWRIGHT (NO publishHTML ❌)
+        stage('Archive Playwright Report') {
             steps {
-                publishHTML(target: [
-                    reportDir: 'playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright Report',
-                    keepAll: true,
-                    alwaysLinkToLastBuild: true,
-                    allowMissing: true
-                ])
+                archiveArtifacts artifacts: 'playwright-report/**', allowEmptyArchive: true
             }
         }
 
-        // 📊 AI Dashboard
-        stage('Archive Playwright Report') {
-    steps {
-        archiveArtifacts artifacts: 'playwright-report/**', allowEmptyArchive: true
-    }
-}stage('Publish AI Dashboard') {
+        // 📊 AI Dashboard (SÍ HTML)
+        stage('Publish AI Dashboard') {
             steps {
                 publishHTML(target: [
                     reportDir: 'reports',
@@ -89,7 +78,7 @@ pipeline {
             }
         }
 
-        // 🚀 ALLURE REPORT 🔥🔥🔥
+        // 🚀 ALLURE
         stage('Publish Allure Report') {
             steps {
                 allure([
