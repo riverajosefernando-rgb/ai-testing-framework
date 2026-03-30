@@ -4,11 +4,12 @@ import { exec } from 'child_process';
 
 export function generateHTMLReport(history, fileName = 'ai-report.html') {
 
-const timestamp = new Intl.DateTimeFormat('es-CO', {
-  dateStyle: 'short',
-  timeStyle: 'medium'
-}).format(new Date());
-  
+  // 🧠 Fecha en hora local correcta (automática)
+  const timestamp = new Intl.DateTimeFormat('es-CO', {
+    dateStyle: 'short',
+    timeStyle: 'medium'
+  }).format(new Date());
+
   const rows = history.map(entry => `
     <tr>
       <td>${entry.timestamp}</td>
@@ -31,7 +32,6 @@ const timestamp = new Intl.DateTimeFormat('es-CO', {
   <head>
     <title>AI Testing Dashboard</title>
 
-    <!-- 🚫 Evitar cache -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -115,31 +115,40 @@ const timestamp = new Intl.DateTimeFormat('es-CO', {
   </html>
   `;
 
-  // 💾 Guardar archivo
-  fs.writeFileSync(`reports/${fileName}`, html);
+  // 🔥 1. Crear carpeta SI NO EXISTE
+  const reportsDir = path.join(process.cwd(), 'reports');
 
-  // 🔗 Generar URL
-  const fullPath = path.resolve(`reports/${fileName}`);
-  const fileUrl = `file:///${fullPath.replace(/\\/g, '/')}`;
+  if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+  }
+
+  // 🔥 2. Guardar archivo correctamente
+  const filePath = path.join(reportsDir, fileName);
+  fs.writeFileSync(filePath, html);
+
+  // 🔗 3. URL
+  const fileUrl = `file:///${filePath.replace(/\\/g, '/')}`;
 
   console.log("\n📊 ===== AI DASHBOARD =====");
-  console.log(`📄 Archivo: ${fileName}`);
+  console.log(`📄 Archivo: ${filePath}`);
   console.log(`🔗 ${fileUrl}`);
   console.log("📊 =======================\n");
 
-  // 🚀 Abrir en navegador predeterminado
-  let command;
+  // 🚫 4. NO abrir en Jenkins (muy importante)
+  if (!process.env.CI) {
 
-  if (process.platform === 'win32') {
-    command = `start "" "${fileUrl}"`; // 🔥 FIX CLAVE WINDOWS
-  } else if (process.platform === 'darwin') {
-    command = `open "${fileUrl}"`;
-  } else {
-    command = `xdg-open "${fileUrl}"`;
+    let command;
+
+    if (process.platform === 'win32') {
+      command = `start "" "${fileUrl}"`;
+    } else if (process.platform === 'darwin') {
+      command = `open "${fileUrl}"`;
+    } else {
+      command = `xdg-open "${fileUrl}"`;
+    }
+
+    setTimeout(() => {
+      exec(command, { shell: true });
+    }, 1000);
   }
-
-  // 🔥 Delay para evitar que Playwright lo cierre
-  setTimeout(() => {
-    exec(command, { shell: true });
-  }, 1000);
 }
