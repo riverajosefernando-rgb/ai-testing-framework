@@ -116,10 +116,10 @@ const timestamp = new Intl.DateTimeFormat('es-CO', {
   `;
 
   // 💾 Guardar archivo
-  fs.writeFileSync(fileName, html);
+  fs.writeFileSync(`reports/${fileName}`, html);
 
   // 🔗 Generar URL
-  const fullPath = path.resolve(fileName);
+  const fullPath = path.resolve(`reports/${fileName}`);
   const fileUrl = `file:///${fullPath.replace(/\\/g, '/')}`;
 
   console.log("\n📊 ===== AI DASHBOARD =====");

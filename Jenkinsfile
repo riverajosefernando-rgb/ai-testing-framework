@@ -38,7 +38,8 @@ pipeline {
                     reportFiles: 'index.html',
                     reportName: 'Playwright Report',
                     keepAll: true,
-                    alwaysLinkToLastBuild: true
+                    alwaysLinkToLastBuild: true,
+                    allowMissing: false
                 ])
             }
         }
@@ -46,11 +47,12 @@ pipeline {
         stage('Publish AI Dashboard') {
             steps {
                 publishHTML(target: [
-                    reportDir: '.',
+                    reportDir: 'reports', // 🔥 IMPORTANTE (no root)
                     reportFiles: 'ai-report.html',
                     reportName: 'AI Dashboard',
                     keepAll: true,
-                    alwaysLinkToLastBuild: true
+                    alwaysLinkToLastBuild: true,
+                    allowMissing: false
                 ])
             }
         }
@@ -58,7 +60,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: '**/*.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'playwright-report/**, reports/**', allowEmptyArchive: true
         }
     }
 }
